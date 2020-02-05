@@ -3,7 +3,15 @@
 namespace Acme;
 
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\UriInterface;
 
+/**
+ * とあるweb-APIのPSR-7 Request組み立て
+ *
+ * - 各種パラメタの知識をここにカプセル化する
+ * - RequestInterfaceの実装はGuzzleのものを使っているが、
+ *   将来的にzend-diactorosなどに差し替えられるようにPSR-7でやり取りする
+ */
 class RequestBuilder
 {
     const ENDPOINT_TERMINAL = '/abc';
@@ -11,28 +19,42 @@ class RequestBuilder
     /** @var RequestInterface */
     private $req;
 
-    /** @var string[] */
+    /** @var string[] application/x-www-form-urlencoded */
     private $arrBody = [];
 
+
+    /**
+     * @param string|UriInterface $endpoint
+     */
     private function __construct($endpoint)
     {
         $this->req = new \GuzzleHttp\Psr7\Request('post', $endpoint);
         $this->init();
     }
 
-    public static function createByEnv()
+    /**
+     * endpointを環境変数から取得して作成する
+     * @return static
+     */
+    public static function createByEnv(): self
     {
         $endpoint = getenv('SAMPLE_API_ENDPOINT_PREFIX') . static::ENDPOINT_TERMINAL;
         return static::createByEndpoint($endpoint);
     }
 
-    public static function createByEndpoint($endpoint)
+    /**
+     * endpointを指定して作成する
+     * @param $endpoint
+     * @return static
+     */
+    public static function createByEndpoint($endpoint): self
     {
         return new static($endpoint);
     }
 
     private function init()
     {
+        // application/x-www-form-urlencoded のkeyの順序を揃えたい
         $fields = ['user_id', 'articleId', 'verbose'];
         foreach ($fields as $name) {
             $this->arrBody[$name] = null;
@@ -49,6 +71,9 @@ class RequestBuilder
             );
     }
 
+    /**
+     * 必須チェックなど
+     */
     public function validate()
     {
         if ('' === ($this->arrBody['user_id'] ?? '')) {
@@ -70,6 +95,7 @@ class RequestBuilder
 
     public function setVerbose(bool $enable): self
     {
+        // low-layerな表現形式はsetterでカプセル化する
         $this->arrBody['verbose'] = $enable ? 'true' : 'false';
         return $this;
     }
