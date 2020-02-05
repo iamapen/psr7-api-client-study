@@ -6,16 +6,29 @@ use Psr\Http\Message\RequestInterface;
 
 class RequestBuilder
 {
+    const ENDPOINT_TERMINAL = '/abc';
+
     /** @var RequestInterface */
     private $req;
 
     /** @var string[] */
     private $arrBody = [];
 
-    public function __construct($endPoint)
+    private function __construct($endpoint)
     {
-        $this->req = new \GuzzleHttp\Psr7\Request('post', $endPoint);
+        $this->req = new \GuzzleHttp\Psr7\Request('post', $endpoint);
         $this->init();
+    }
+
+    public static function createByEnv()
+    {
+        $endpoint = getenv('SAMPLE_API_ENDPOINT_PREFIX') . static::ENDPOINT_TERMINAL;
+        return static::createByEndpoint($endpoint);
+    }
+
+    public static function createByEndpoint($endpoint)
+    {
+        return new static($endpoint);
     }
 
     private function init()

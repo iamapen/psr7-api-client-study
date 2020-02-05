@@ -7,9 +7,9 @@ use PHPUnit\Framework\TestCase;
 class RequestBuilderTest extends TestCase
 {
 
-    function test_build_basic() {
+    function test_construct() {
         $endPoint = 'http://user:pass@hoge.example.com:8080/foo/bar?piyo=puyo#cake';
-        $sut = new RequestBuilder($endPoint);
+        $sut = RequestBuilder::createByEndpoint($endPoint);
         $req = $sut->setUserId(10)->build();
 
         $this->assertInstanceOf(\Psr\Http\Message\RequestInterface::class, $req);
@@ -26,9 +26,20 @@ class RequestBuilderTest extends TestCase
         $this->assertSame('header01', $req->getHeaderLine('X-HEADER01'));
     }
 
+    function test_createByEnv() {
+        $sut = RequestBuilder::createByEnv();
+        $req = $sut->setUserId(10)->build();
+
+        $this->assertInstanceOf(\Psr\Http\Message\RequestInterface::class, $req);
+        $this->assertSame('http', $req->getUri()->getScheme());
+        $this->assertSame('example.com', $req->getUri()->getHost());
+        $this->assertSame('/v2/abc', $req->getUri()->getPath());
+        $this->assertSame('/v2/abc', $req->getRequestTarget());
+    }
+
     function test_build_body()
     {
-        $sut = new RequestBuilder('http://example.com/abc');
+        $sut = RequestBuilder::createByEndpoint('http://example.com/abc');
 
         $req = $sut->setUserId(10)
             ->setVerbose(true)
@@ -39,7 +50,7 @@ class RequestBuilderTest extends TestCase
 
     function test_build_順序が固定できること()
     {
-        $sut = new RequestBuilder('http://example.com/abc');
+        $sut = RequestBuilder::createByEndpoint('http://example.com/abc');
 
         $req1 = $sut->setUserId(10)
             ->setVerbose(true)
@@ -54,7 +65,7 @@ class RequestBuilderTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('user_id is required');
 
-        $sut = new RequestBuilder('http://example.com/abc');
+        $sut = RequestBuilder::createByEndpoint('http://example.com/abc');
         $req = $sut->build();
     }
 }
