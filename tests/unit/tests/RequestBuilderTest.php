@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Acme;
 
@@ -7,7 +7,8 @@ use PHPUnit\Framework\TestCase;
 class RequestBuilderTest extends TestCase
 {
 
-    function test_construct() {
+    function test_construct()
+    {
         $endPoint = 'http://user:pass@hoge.example.com:8080/foo/bar?piyo=puyo#cake';
         $sut = RequestBuilder::createByEndpoint($endPoint);
         $req = $sut->setUserId(10)->build();
@@ -26,8 +27,9 @@ class RequestBuilderTest extends TestCase
         $this->assertSame('header01', $req->getHeaderLine('X-HEADER01'));
     }
 
-    function test_createByEnv() {
-        $sut = RequestBuilder::createByEnv();
+    function test_createByEnv()
+    {
+        $sut = RequestBuilder::create();
         $req = $sut->setUserId(10)->build();
 
         $this->assertInstanceOf(\Psr\Http\Message\RequestInterface::class, $req);
@@ -61,7 +63,8 @@ class RequestBuilderTest extends TestCase
         $this->assertSame((string)$req1->getBody(), (string)$req2->getBody());
     }
 
-    function test_build_必須項目がないと例外が起きること() {
+    function test_build_必須項目がないと例外が起きること()
+    {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('user_id is required');
 

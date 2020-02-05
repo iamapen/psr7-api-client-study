@@ -36,7 +36,7 @@ class RequestBuilder
      * endpointを環境変数から取得して作成する
      * @return static
      */
-    public static function createByEnv(): self
+    public static function create(): self
     {
         $endpoint = getenv('SAMPLE_API_ENDPOINT_PREFIX') . static::ENDPOINT_TERMINAL;
         return static::createByEndpoint($endpoint);
@@ -81,7 +81,11 @@ class RequestBuilder
         }
     }
 
-    public function setUserId(string $userId): self
+    /**
+     * @param string $userId
+     * @return $this
+     */
+    public function setUserId($userId): self
     {
         $this->arrBody['user_id'] = $userId;
         return $this;
