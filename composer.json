@@ -2,7 +2,6 @@
     "require": {
         "guzzlehttp/guzzle": "^6.5",
         "phpunit/phpunit": "^8.5",
-        "psr/http-factory": "^1.0",
         "vlucas/phpdotenv": "^4.1"
     },
     "autoload": {
